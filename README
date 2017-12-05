@@ -1,0 +1,40 @@
+
+########################
+  General pipeline for the annotation of regenerating transcriptome used in 
+  "Regeneration in distantly related species: common strategies and pathways"
+    M.R.Fumagalli, S.Zapperi, C.A.M La Porta
+    Systems Biology and Applications
+########################
+
+Expected input files for each considered organism:
+  * the list of assembled transcripts/sequences in fasta format
+  * a table with expression levels of the transcrips as a function of time in the form
+        Name T0 T1 T2 T3 T4
+        Seq_0008 0 0 1 1 0
+        Seq_0026 31 491 135 67 81
+        Seq_0037 17 37 20 38 37
+
+Moreover, a reference database (e.g. Swissprot) is required to blastx alignment.
+
+Transcripts are clustered using CD-Hit with a similarity thresholds between the sequences of 80%.
+The expression file has to be preprocessed in order to select  a minimum level of expression
+    (e.g. 20 reads or 1 rpkm)
+       awk '{if(NR>1){for(i=1; i<=NF; i++){if(int($i)>minval){ print $0 >> "Expression_more20.txt"}}}}' minval=20 <input expression file>
+It is possible to use either single transcripts or total gene level (sum or wighted average over transcripts) to evaluate differentially expression.
+    
+######  Content  #####
+
+Transcriptome_analysis
+        0_Transcriptome_alignment.sh
+            Blastx and Lastz codes
+        1_Transcriptome_analysis.sh
+            Analysis of blastx output and selection of best hits
+        2_List_match_80.sh       
+            Uses 2_List_match_em15_inter.py and 2_List_match_em15_intra.py
+            [include in a for loop or repeat for different species]
+
+EdgeR_analysis
+    Differential expression analysis performed using EdgeR
+
+
+
